@@ -62,6 +62,17 @@ resource "azurerm_network_security_group" "as02-nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+  security_rule {
+    name                       = "mysql"
+    priority                   = 1003
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3306"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 
@@ -133,7 +144,12 @@ resource "null_resource" "install-apache" {
       }
       inline = [
         "sudo apt update",
-        "sudo apt install -y apache2"
+        # "sudo apt install -y apache2",
+        "sudo apt install -y mysql-server-5.7",
+        "sudo mysql -e \"create user 'teste'@'%' identified by 'pass';\"",
+        "sudo mysql -e \"create user 'root'@'%' identified by '';\"",
+        "sudo mysql -e \"create database if not exists dbTeste;\"",
+        "sudo mysql -e \"use dbTeste; create table if not exists tabela1 (id int) engine=InnoDB;\"",        
       ]
   }
 }
